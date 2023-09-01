@@ -19,4 +19,11 @@ RUN dotnet publish -c release -o /out --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS runtime
 WORKDIR /app
 COPY --from=build /out ./
+RUN apt-get install -y --no-install-recommends curl 
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
+ && echo "node version: $(node --version)" \
+ && echo "npm version: $(npm --version)" \
+ && rm -rf /var/lib/apt/lists/*
+RUN npm install --ignore-scripts
 ENTRYPOINT ["dotnet", "SentimentGpt.dll"]
