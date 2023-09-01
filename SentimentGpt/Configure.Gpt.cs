@@ -14,6 +14,8 @@ public class ConfigureGpt : IHostingStartup
         {
             // Call Open AI Chat API directly without going through node TypeChat
             var gptProvider = context.Configuration.GetValue<string>("GptChatProvider");
+            var logger = services.BuildServiceProvider().GetRequiredService<ILogger<ConfigureGpt>>();
+            logger.LogInformation($"Using GptChatProvider: {gptProvider}");
             if (gptProvider == nameof(KernelChatProvider<SentimentResult>))
             {
                 var kernel = Kernel.Builder
