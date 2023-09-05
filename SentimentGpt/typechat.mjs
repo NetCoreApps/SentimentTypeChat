@@ -24,14 +24,16 @@ if (!useProgram) {
             }
         }, undefined, 2))
     }
-    schemaName = firstInterfacePos !== -1 && (firstTypePos !== -1 && firstInterfacePos < firstTypePos)
+    schemaName = firstInterfacePos !== -1 && (firstTypePos === -1 || firstInterfacePos < firstTypePos)
         ? schema.substring(firstInterfacePos + 'export interface '.length, endInterfacePos).trim()
         : schema.substring(firstTypePos + 'export type '.length, endTypePos).trim()
 }
 
+
+
 const translator = useProgram
     ? createProgramTranslator(model, schema)
-    : createJsonTranslator(model, schema, "SentimentResponse")
+    : createJsonTranslator(model, schema, schemaName)
 
 const response = await translator.translate(process.argv[4])
 
