@@ -31,21 +31,9 @@ public class SentimentResult
 
 
 
-public class ProcessSentiment : GptRequestBase<SentimentResult>
-{
-
-}
-
-public class GptRequestBase<T> : IGptRequest<T>
+public class ProcessSentiment : IReturn<SentimentResult>
 {
     public string UserRequest { get; set; }
-    public Dictionary<string,object>? PromptContext { get; set; }
-}
-
-public interface IGptRequest<T> : IReturn<T>
-{
-    string UserRequest { get; set; }
-    Dictionary<string,object>? PromptContext { get; set; }
 }
 
 

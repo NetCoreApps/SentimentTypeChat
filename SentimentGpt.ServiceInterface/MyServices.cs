@@ -31,3 +31,19 @@ public class MyServices : Service
         };
     }
 }
+
+public class AppConfig
+{
+    public string Project { get; set; }
+    public string Location { get; set; }
+    public SiteConfig SiteConfig { get; set; }
+    public string NodePath { get; set; }
+    public string? FfmpegPath { get; set; }
+    public string? WhisperPath { get; set; }
+    public int NodeProcessTimeoutMs { get; set; } = 120 * 1000;
+}
+
+public class SiteConfig
+{
+    public string GptPath { get; set; }
+}

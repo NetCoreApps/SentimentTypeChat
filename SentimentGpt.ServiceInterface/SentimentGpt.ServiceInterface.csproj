@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SentimentGpt.ServiceModel\SentimentGpt.ServiceModel.csproj" />
+    <ProjectReference Include="..\ServiceStack.Gpt\ServiceStack.Gpt.csproj" />
   </ItemGroup>
 
 </Project>
