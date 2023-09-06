@@ -6,9 +6,18 @@ import Sentiment from "./Sentiment.mjs";
 import { ProcessSentiment, TranscribeAudio } from "../dtos.mjs";  // Import your DTOs
 
 export default {
-    template:/*html*/`<div class="relative z-10 flex flex-col items-center justify-center p-4 bg-white dark:bg-black rounded-md">
+    template:/*html*/`<div class="relative z-10 flex flex-col p-4 bg-white dark:bg-black rounded-md">
+  <div class="mt-4">
+    <input 
+      v-model="transcript"
+      type="text" 
+      placeholder="Enter text here"
+      class="p-2 w-full border rounded-md focus:ring focus:ring-indigo-200 dark:bg-gray-800 dark:text-white"
+    />
+  </div>
+  
   <!-- Flex container for button and spinner -->
-  <div class="flex items-center">
+  <div class="flex mt-2">
     <!-- Button styling -->
     <button @click="toggleRecording" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:ring-offset-black">
       {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
@@ -37,6 +46,7 @@ export default {
         const audioRecorder = new AudioRecorder();
         const isPlaying = ref(false);
         const sentiment = ref(null);
+        const transcript = ref("");
         const client = useClient();  // Using ServiceStack's client
 
         const toggleRecording = async () => {
@@ -60,10 +70,11 @@ export default {
                 const api = await client.apiForm(new TranscribeAudio(), formData);
                 
                 if (api.succeeded) {
-                    const transcript = api.response.transcript;
+                    const text = api.response.transcript;
+                    transcript.value = text;
 
                     // Post transcribed text to another service for order processing
-                    let processSentiment = await client.api(new ProcessSentiment({ userMessage: transcript }));
+                    let processSentiment = await client.api(new ProcessSentiment({ userMessage: text }));
                     if (processSentiment.succeeded) {
                         console.log(processSentiment.response)
                         sentiment.value = processSentiment.response;
@@ -76,6 +87,6 @@ export default {
             }
         };
 
-        return { isRecording, toggleRecording, sentiment, isLoading };
+        return { isRecording, toggleRecording, sentiment, isLoading,transcript };
     }
 };
