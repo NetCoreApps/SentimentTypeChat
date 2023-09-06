@@ -22,7 +22,7 @@ public class SentimentAnalysisService : Service
     public ILoggerFactory LoggerFactory { get; set; }
     public ILogger Logger => LoggerFactory.CreateLogger(typeof(SentimentAnalysisService));
     
-    public TypeChatRequest CreateTypeChatRequest(string userMessage) => new(PromptProvider, userMessage) {
+    public TypeChatRequest CreateTypeChatRequest(string schema, string prompt,string userMessage) => new(schema, prompt, userMessage) {
         NodePath = Config.NodePath,
         NodeProcessTimeoutMs = Config.NodeProcessTimeoutMs,
         WorkingDirectory = Environment.CurrentDirectory,
@@ -34,7 +34,9 @@ public class SentimentAnalysisService : Service
     {
         try
         {
-            var result = await TypeChatProvider.TranslateMessageAsync(CreateTypeChatRequest(request.UserMessage));
+            var schema = await PromptProvider.CreateSchemaAsync();
+            var prompt = await PromptProvider.CreatePromptAsync(request.UserMessage);
+            var result = await TypeChatProvider.TranslateMessageAsync(CreateTypeChatRequest(schema, prompt, request.UserMessage));
             var response = result.Result.FromJson<SentimentResult>();
             var sentiment = response.Sentiment ?? SentimentType.Neutral;
             var sentimentResponse = new SentimentResponse
