@@ -1,6 +1,6 @@
 /* Options:
-Date: 2023-05-25 16:12:17
-Version: 6.81
+Date: 2023-09-06 12:45:18
+Version: 6.101
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
 
@@ -13,6 +13,34 @@ BaseUrl: https://localhost:5001
 */
 
 "use strict";
+export class Recording {
+    /** @param {{id?:number,path?:string,transcript?:string,transcriptConfidence?:number,transcriptResponse?:string,createdDate?:string,transcribeStart?:string,transcribeEnd?:string,transcribeDurationMs?:number,durationMs?:number,ipAddress?:string,error?:string}} [init] */
+    constructor(init) { Object.assign(this, init) }
+    /** @type {number} */
+    id;
+    /** @type {string} */
+    path;
+    /** @type {?string} */
+    transcript;
+    /** @type {?number} */
+    transcriptConfidence;
+    /** @type {?string} */
+    transcriptResponse;
+    /** @type {string} */
+    createdDate;
+    /** @type {?string} */
+    transcribeStart;
+    /** @type {?string} */
+    transcribeEnd;
+    /** @type {?number} */
+    transcribeDurationMs;
+    /** @type {?number} */
+    durationMs;
+    /** @type {?string} */
+    ipAddress;
+    /** @type {?string} */
+    error;
+}
 export class QueryBase {
     /** @param {{skip?:number,take?:number,orderBy?:string,orderByDesc?:string,include?:string,fields?:string,meta?:{ [index: string]: string; }}} [init] */
     constructor(init) { Object.assign(this, init) }
@@ -104,6 +132,23 @@ export class Booking extends AuditBase {
     /** @type {?boolean} */
     cancelled;
 }
+/** @typedef {'Positive'|'Negative'|'Neutral'} */
+export var SentimentType;
+(function (SentimentType) {
+    SentimentType["Positive"] = "Positive"
+    SentimentType["Negative"] = "Negative"
+    SentimentType["Neutral"] = "Neutral"
+})(SentimentType || (SentimentType = {}));
+export class SentimentResponse {
+    /** @param {{id?:number,text?:string,sentiment?:SentimentType}} [init] */
+    constructor(init) { Object.assign(this, init) }
+    /** @type {number} */
+    id;
+    /** @type {?string} */
+    text;
+    /** @type {SentimentType} */
+    sentiment;
+}
 export class PageStats {
     /** @param {{label?:string,total?:number}} [init] */
     constructor(init) { Object.assign(this, init) }
@@ -149,6 +194,12 @@ export class AdminDataResponse {
     constructor(init) { Object.assign(this, init) }
     /** @type {PageStats[]} */
     pageStats;
+}
+export class SentimentResult {
+    /** @param {{sentiment?:SentimentType}} [init] */
+    constructor(init) { Object.assign(this, init) }
+    /** @type {?SentimentType} */
+    sentiment;
 }
 export class Todo {
     /** @param {{id?:number,text?:string,isFinished?:boolean}} [init] */
@@ -274,6 +325,24 @@ export class AdminData {
     getMethod() { return 'GET' }
     createResponse() { return new AdminDataResponse() }
 }
+export class TranscribeAudio {
+    /** @param {{path?:string}} [init] */
+    constructor(init) { Object.assign(this, init) }
+    /** @type {string} */
+    path;
+    getTypeName() { return 'TranscribeAudio' }
+    getMethod() { return 'POST' }
+    createResponse() { return new Recording() }
+}
+export class ProcessSentiment {
+    /** @param {{userMessage?:string}} [init] */
+    constructor(init) { Object.assign(this, init) }
+    /** @type {string} */
+    userMessage;
+    getTypeName() { return 'ProcessSentiment' }
+    getMethod() { return 'POST' }
+    createResponse() { return new SentimentResult() }
+}
 export class QueryTodos extends QueryData {
     /** @param {{id?:number,ids?:number[],textContains?:string,skip?:number,take?:number,orderBy?:string,orderByDesc?:string,include?:string,fields?:string,meta?:{ [index: string]: string; }}} [init] */
     constructor(init) { super(init); Object.assign(this, init) }
@@ -319,7 +388,7 @@ export class DeleteTodos {
     createResponse() { }
 }
 export class Authenticate {
-    /** @param {{provider?:string,state?:string,oauth_token?:string,oauth_verifier?:string,userName?:string,password?:string,rememberMe?:boolean,errorView?:string,nonce?:string,uri?:string,response?:string,qop?:string,nc?:string,cnonce?:string,accessToken?:string,accessTokenSecret?:string,scope?:string,meta?:{ [index: string]: string; }}} [init] */
+    /** @param {{provider?:string,state?:string,oauth_token?:string,oauth_verifier?:string,userName?:string,password?:string,rememberMe?:boolean,errorView?:string,nonce?:string,uri?:string,response?:string,qop?:string,nc?:string,cnonce?:string,accessToken?:string,accessTokenSecret?:string,scope?:string,returnUrl?:string,meta?:{ [index: string]: string; }}} [init] */
     constructor(init) { Object.assign(this, init) }
     /**
      * @type {string}
@@ -357,6 +426,8 @@ export class Authenticate {
     accessTokenSecret;
     /** @type {string} */
     scope;
+    /** @type {string} */
+    returnUrl;
     /** @type {{ [index: string]: string; }} */
     meta;
     getTypeName() { return 'Authenticate' }
@@ -435,6 +506,15 @@ export class QueryCoupons extends QueryDb {
     /** @type {string} */
     id;
     getTypeName() { return 'QueryCoupons' }
+    getMethod() { return 'GET' }
+    createResponse() { return new QueryResponse() }
+}
+export class QuerySentimentResponse extends QueryDb {
+    /** @param {{id?:number,skip?:number,take?:number,orderBy?:string,orderByDesc?:string,include?:string,fields?:string,meta?:{ [index: string]: string; }}} [init] */
+    constructor(init) { super(init); Object.assign(this, init) }
+    /** @type {?number} */
+    id;
+    getTypeName() { return 'QuerySentimentResponse' }
     getMethod() { return 'GET' }
     createResponse() { return new QueryResponse() }
 }

@@ -34,12 +34,12 @@ public class SentimentAnalysisService : Service
     {
         try
         {
-            var result = await TypeChatProvider.TranslateMessageAsync(CreateTypeChatRequest(request.UserRequest));
+            var result = await TypeChatProvider.TranslateMessageAsync(CreateTypeChatRequest(request.UserMessage));
             var response = result.Result.FromJson<SentimentResult>();
             var sentiment = response.Sentiment ?? SentimentType.Neutral;
             var sentimentResponse = new SentimentResponse
             {
-                Text = request.UserRequest,
+                Text = request.UserMessage,
                 Sentiment = sentiment,
             };
             Db.Insert(sentimentResponse);

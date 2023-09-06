@@ -11,6 +11,8 @@ blog/
 package-lock.json
 App_Data/
 .env
+/SentimentGpt/recordings/
+/SentimentGpt/speech-to-text/
 
 # User-specific files
 *.suo
