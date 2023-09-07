@@ -36,5 +36,6 @@ RUN apt-get install -y --no-install-recommends nodejs \
  && echo "node version: $(node --version)" \
  && echo "npm version: $(npm --version)" \
  && rm -rf /var/lib/apt/lists/*
+
 RUN npm install --ignore-scripts
 ENTRYPOINT ["dotnet", "SentimentGpt.dll"]
