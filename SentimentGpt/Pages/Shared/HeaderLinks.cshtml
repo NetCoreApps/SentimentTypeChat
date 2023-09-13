@@ -18,19 +18,10 @@
             </a>
         </li>
     }
-
-    // Uses prerendered /blog for production
-    RenderNavLink("/blog", "Blog", "ml-8 sm:ml-0");
-    RenderNavLink("/todomvc", "Todos");
-    RenderNavLink("/bookings-auto", "Bookings");
-    if (isAuthenticated)
-        RenderNavLink("/profile", "Profile");
     if (isAdmin)
         RenderNavLink("/admin", "Admin");
     if (isAuthenticated)
         RenderLinkButton("/auth/logout?continue=/", "Sign Out");
     if (!isAuthenticated)
         RenderLinkButton("/signin", "Sign In");
-    if (!isAuthenticated)
-        RenderLinkButton("/signup", "Sign Up", $"ml-2 {Css.PrimaryButton}");
 }

@@ -37,13 +37,3 @@ public class SentimentResult
 {
     public SentimentType? Sentiment { get; set; }
 }
-
-
-
-public class ProcessSentiment : IReturn<SentimentResult>
-{
-    public string UserMessage { get; set; }
-}
-
-
-

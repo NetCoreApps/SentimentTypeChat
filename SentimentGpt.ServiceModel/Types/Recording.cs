@@ -9,6 +9,7 @@ public class Recording
     [AutoIncrement]
     public int Id { get; set; }
     public string Path { get; set; }
+    public string Provider { get; set; }
     public string? Transcript { get; set; }
     public float? TranscriptConfidence { get; set; }
     public string? TranscriptResponse { get; set; }
