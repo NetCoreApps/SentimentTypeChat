@@ -6,20 +6,33 @@ public class AppConfig
 {
     public string Project { get; set; }
     public string Location { get; set; }
-    public SiteConfig SiteConfig { get; set; }
+    public SiteConfig Sentiment { get; set; }
     public string NodePath { get; set; }
     public string? FfmpegPath { get; set; }
     public string? WhisperPath { get; set; }
     public int NodeProcessTimeoutMs { get; set; } = 120 * 1000;
     
-    public GoogleCloudSpeechConfig GoogleCloudSpeechConfig() => new()
+    public SiteConfig GetSiteConfig(string name)
     {
-        Project = Project,
-        Location = Location,
-        Bucket = SiteConfig.Bucket,
-        RecognizerId = SiteConfig.RecognizerId,
-        PhraseSetId = SiteConfig.PhraseSetId,
-    };
+        return name.ToLower() switch
+        {
+            "sentiment" => Sentiment,
+            _ => throw new NotSupportedException($"No SiteConfig exists for '{name}'")
+        };
+    }
+
+    public GoogleCloudSpeechConfig SpeechConfig(string name)
+    {
+        var siteConfig = GetSiteConfig(name);
+        return new GoogleCloudSpeechConfig
+        {
+            Project = Project,
+            Location = Location,
+            Bucket = siteConfig.Bucket,
+            RecognizerId = siteConfig.RecognizerId,
+            PhraseSetId = siteConfig.PhraseSetId,
+        };
+    }
 }
 
 public class SiteConfig

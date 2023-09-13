@@ -15,9 +15,9 @@ public class SentimentPromptProvider : IPromptProvider
 
     public async Task<string> CreateSchemaAsync(CancellationToken token = default)
     {
-        var file = new FileInfo(Config.SiteConfig.GptPath.CombineWith("schema.ss"));
+        var file = new FileInfo(Config.Sentiment.GptPath.CombineWith("schema.ss"));
         if (file == null)
-            throw HttpError.NotFound($"{Config.SiteConfig.GptPath}/schema.ss not found");
+            throw HttpError.NotFound($"{Config.Sentiment.GptPath}/schema.ss not found");
         
         var tpl = await file.ReadAllTextAsync(token: token);
         var context = new ScriptContext {
@@ -33,9 +33,9 @@ public class SentimentPromptProvider : IPromptProvider
 
     public async Task<string> CreatePromptAsync(string userMessage, CancellationToken token = default)
     {
-        var file = new FileInfo(Config.SiteConfig.GptPath.CombineWith("prompt.ss"));
+        var file = new FileInfo(Config.Sentiment.GptPath.CombineWith("prompt.ss"));
         if (file == null)
-            throw HttpError.NotFound($"{Config.SiteConfig.GptPath}/prompt.ss not found");
+            throw HttpError.NotFound($"{Config.Sentiment.GptPath}/prompt.ss not found");
         
         var schema = await CreateSchemaAsync(token:token);
         var tpl = await file.ReadAllTextAsync(token: token);

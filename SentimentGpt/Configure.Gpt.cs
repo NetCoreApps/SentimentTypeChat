@@ -1,8 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Reliability;
-using SentimentGpt.ServiceInterface;
-using SentimentGpt.ServiceModel;
 using ServiceStack.Gpt;
+using SentimentGpt.ServiceInterface;
 
 [assembly: HostingStartup(typeof(SentimentGpt.ConfigureGpt))]
 
@@ -13,12 +11,16 @@ public class ConfigureGpt : IHostingStartup
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context, services) =>
         {
-            services.AddSingleton<IPromptProvider>(c =>
-                new SentimentPromptProvider(c.Resolve<AppConfig>()));
-            
+            services.AddSingleton<SentimentPromptProvider>();
+            services.AddSingleton<IPromptProviderFactory>(c => new PromptProviderFactory {
+                Providers = {
+                    [Tags.Sentiment] = c.Resolve<SentimentPromptProvider>()
+                }
+            });
+
             // Call Open AI Chat API directly without going through node TypeChat
             var gptProvider = context.Configuration.GetValue<string>("TypeChatProvider");
-            if (gptProvider == nameof(KernelTypeChatProvider))
+            if (gptProvider == nameof(KernelTypeChat))
             {
                 var kernel = Kernel.Builder
                     .WithOpenAIChatCompletionService(
@@ -26,13 +28,13 @@ public class ConfigureGpt : IHostingStartup
                         Environment.GetEnvironmentVariable("OPENAI_API_KEY")!)
                     .Build();
                 services.AddSingleton(kernel);
-                services.AddSingleton<ITypeChatProvider>(c =>  new KernelTypeChatProvider(c.Resolve<IKernel>()));
+                services.AddSingleton<ITypeChat>(c =>  new KernelTypeChat(c.Resolve<IKernel>()));
             }
-            else if (gptProvider == nameof(NodeTypeChatProvider))
+            else if (gptProvider == nameof(NodeTypeChat))
             {
                 // Call Open AI Chat API through node TypeChat
-                services.AddSingleton<ITypeChatProvider>(c => new NodeTypeChatProvider());
+                services.AddSingleton<ITypeChat>(c => new NodeTypeChat());
             }
-            else throw new NotSupportedException($"Unknown TypeChatProvider: {gptProvider}");
+            else throw new NotSupportedException($"Unknown TypeChat Provider: {gptProvider}");
         });
 }

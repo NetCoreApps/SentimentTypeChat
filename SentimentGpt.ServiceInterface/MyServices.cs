@@ -1,6 +1,5 @@
 using ServiceStack;
 using SentimentGpt.ServiceModel;
-using SentimentGpt.ServiceModel.Types;
 using ServiceStack.Gpt;
 using ServiceStack.OrmLite;
 
@@ -19,6 +18,7 @@ public class MyServices : Service
         {
             ("SentimentResponses", typeof(SentimentResponse)),
             ("Recordings",         typeof(Recording)),
+            ("Chats",              typeof(Chat)),
         };
         var dialect = Db.GetDialectProvider();
         var totalSql = tables.Map(x => $"SELECT '{x.Label}', COUNT(*) FROM {dialect.GetQuotedTableName(x.Type.GetModelMetadata())}")

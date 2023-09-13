@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useClient } from "@servicestack/vue";
 import { AudioRecorder } from "../AudioRecorder.mjs";
 import Sentiment from "./Sentiment.mjs";
-import { ProcessSentiment, TranscribeAudio } from "../dtos.mjs";  // Import your DTOs
+import { CreateChat, CreateRecording } from "../dtos.mjs";  // Import your DTOs
 
 export default {
     template:/*html*/`<div class="relative z-10 flex flex-col p-4 bg-white dark:bg-black rounded-md">
@@ -16,14 +16,11 @@ export default {
     />
   </div>
   
-  <!-- Flex container for button and spinner -->
   <div class="flex mt-2">
-    <!-- Button styling -->
     <button @click="toggleRecording" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:ring-offset-black">
       {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
     </button>
   
-    <!-- Loading Spinner to the right of button -->
     <div v-if="isLoading" class="ml-4">
       <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -32,7 +29,6 @@ export default {
     </div>
   </div>
 
-  <!-- Sentiment Details -->
   <div v-if="sentiment && !isLoading" class="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
     <Sentiment :sentiment="sentiment" />
   </div>
@@ -57,8 +53,7 @@ export default {
 
             if (isRecording.value) {
                 isRecording.value = false;
-
-
+                
                 const audio = await audioRecorder.stop();
                 audio.addEventListener('playing', e => isPlaying.value = true);
                 audio.addEventListener('pause', e => isPlaying.value = false);
@@ -67,17 +62,20 @@ export default {
                 // Using FormData to upload audio blob
                 const formData = new FormData();
                 formData.append('path', audioRecorder.audioBlob, `file.${audioRecorder.audioExt}`);
-                const api = await client.apiForm(new TranscribeAudio(), formData);
+                const api = await client.apiForm(new CreateRecording({feature:'sentiment'}), formData);
                 
                 if (api.succeeded) {
                     const text = api.response.transcript;
                     transcript.value = text;
 
                     // Post transcribed text to another service for order processing
-                    let processSentiment = await client.api(new ProcessSentiment({ userMessage: text }));
-                    if (processSentiment.succeeded) {
-                        console.log(processSentiment.response)
-                        sentiment.value = processSentiment.response;
+                    const apiChat = await client.api(new CreateChat({
+                        feature: 'sentiment',    
+                        userMessage: text 
+                    }));
+                    if (apiChat.succeeded) {
+                        console.log(apiChat.response)
+                        sentiment.value = apiChat.response;
                     }
                 }
                 isLoading.value = false;
