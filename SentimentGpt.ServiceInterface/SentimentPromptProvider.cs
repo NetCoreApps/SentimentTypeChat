@@ -1,5 +1,5 @@
 ﻿using ServiceStack;
-using ServiceStack.Gpt;
+using ServiceStack.AI;
 using ServiceStack.Script;
 
 namespace SentimentGpt.ServiceInterface;

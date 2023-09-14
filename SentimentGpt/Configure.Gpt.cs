@@ -1,5 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
-using ServiceStack.Gpt;
+using ServiceStack.AI;
 using SentimentGpt.ServiceInterface;
 
 [assembly: HostingStartup(typeof(SentimentGpt.ConfigureGpt))]

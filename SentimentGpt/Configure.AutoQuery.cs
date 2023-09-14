@@ -1,4 +1,3 @@
-using ServiceStack;
 using ServiceStack.Data;
 
 [assembly: HostingStartup(typeof(SentimentGpt.ConfigureAutoQuery))]

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SentimentGpt.ServiceModel",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SentimentGpt.Tests", "SentimentGpt.Tests\SentimentGpt.Tests.csproj", "{455EC1EF-134F-4CD4-9C78-E813E4E6D8F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Gpt", "ServiceStack.Gpt\ServiceStack.Gpt.csproj", "{6B78859E-A6DC-4EFB-9FC6-5E3C9CC822EA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{455EC1EF-134F-4CD4-9C78-E813E4E6D8F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{455EC1EF-134F-4CD4-9C78-E813E4E6D8F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{455EC1EF-134F-4CD4-9C78-E813E4E6D8F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6B78859E-A6DC-4EFB-9FC6-5E3C9CC822EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B78859E-A6DC-4EFB-9FC6-5E3C9CC822EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B78859E-A6DC-4EFB-9FC6-5E3C9CC822EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B78859E-A6DC-4EFB-9FC6-5E3C9CC822EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

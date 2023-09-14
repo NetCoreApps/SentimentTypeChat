@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using ServiceStack;
-using ServiceStack.Gpt;
+using ServiceStack.AI;
 using ServiceStack.OrmLite;
 
 namespace SentimentGpt.ServiceInterface;
