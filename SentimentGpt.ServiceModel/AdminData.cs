@@ -14,8 +14,3 @@ public class AdminDataResponse
 {
     public List<PageStats> PageStats { get; set; }
 }
-
-public class ProcessSentiment : IReturn<SentimentResult>
-{
-    public string UserMessage { get; set; }
-}

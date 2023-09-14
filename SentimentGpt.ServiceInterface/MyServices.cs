@@ -1,6 +1,5 @@
 using ServiceStack;
 using SentimentGpt.ServiceModel;
-using ServiceStack.Gpt;
 using ServiceStack.OrmLite;
 
 namespace SentimentGpt.ServiceInterface;
@@ -16,7 +15,6 @@ public class MyServices : Service
     {
         var tables = new (string Label, Type Type)[] 
         {
-            ("SentimentResponses", typeof(SentimentResponse)),
             ("Recordings",         typeof(Recording)),
             ("Chats",              typeof(Chat)),
         };

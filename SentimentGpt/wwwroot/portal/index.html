@@ -91,9 +91,15 @@ const sections = {
                   <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{formatNumber(stat.total)}}</dd>
                 </div>
               </dl>
-              <p class="mt-8 text-sm font-semibold leading-6">
-                Go to <a href="/admin/" class="text-indigo-600">Server Rendered Admin <span aria-hidden="true">&rarr;</span></a>    
-              </p>
+              <div class="flex justify-between mt-8 text-sm font-semibold leading-6">
+                  <p class="">
+                    Go <a href="/" class="text-indigo-600">Home <span aria-hidden="true">&rarr;</span></a>    
+                  </p>
+                  <p>
+                    <a href="/sentiment/schema" class="text-indigo-600">schema.ts</a>
+                    <a href="/sentiment/prompt?userMessage=TypeChat+is+awesome!" class="ml-4 text-indigo-600">prompt</a>
+                  </p>
+              </div>
             </div>`,
             setup() {
                 const client = useClient()
@@ -104,17 +110,16 @@ const sections = {
             }
         },
     },
-    Bookings: {
-        type: 'Booking',
+    Recordings: {
+        group: 'GPT',
+        type: 'Recording',
         component: {
-            template:`<AutoQueryGrid :type="type" 
-                selected-columns="id,name,roomType,roomNumber,bookingStartDate,bookingEndDate,cost,couponId,discount"
-                :header-titles="{ roomNumber:'Room No', bookingStartDate:'Start Date', bookingEndDate:'End Date', couponId:'Coupon' }"
-                :visible-from="{ roomNumber:'lg', bookingEndDate:'xl', cost:'md', couponId:'xl', discount:'never' }" />`,
+            template:`<AutoQueryGrid :type="type" />`,
         },
     },
-    Coupons: {
-        type: 'Coupon',
+    Chats: {
+        group: 'GPT',
+        type: 'Chat',
         component: {
             template:`<AutoQueryGrid :type="type" />`,
         },
