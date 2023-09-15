@@ -16,6 +16,14 @@
             <div class="mb-8 lg:mb-0 w-full lg:w-auto">
                 <form v-if="!(loadingRecording || isRecording || isTranscribing || transcript)" v-on:submit.prevent="onSubmit">
                     <text-input v-model="txtInput" :disabled="isSendingChat" class="w-full lg:w-96 text-2xl" placeholder="What can we get for you today?"></text-input>
+                    <input-examples :loading="isSendingChat" v-model="txtInput" v-on:change="onSubmit" class="mt-2">
+                        <pre>
+                        hello, world
+                        TypeChat is awesome!
+                        I'm having a good day
+                        it's very rainy outside
+                        </pre>
+                    </input-examples>
                 </form>
                 <div class="mt-2 text-2xl text-gray-600">
                     <div v-if="isTranscribing" class="pr-20 flex items-center">
@@ -57,13 +65,13 @@
                 <play-button :playing="isPlaying" v-on:play="audio.play()" v-on:pause="audio.pause()"></play-button>
             </div>
         </div>
-        <div v-if="sentiment" class="mt-8 mx-auto max-w-screen-sm flex justify-center">
+        <div v-if="chatResult" class="mt-8 mx-auto max-w-screen-sm flex justify-center">
             <div class="flex flex-col text-center">
                 <div class="mb-4 text-2xl">is</div>
-                <svg v-if="sentiment=='positive'" class="text-gray-600 w-40 h-40 bg-yellow-400 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8zm-5-6c.78 2.34 2.72 4 5 4s4.22-1.66 5-4H7z"/></svg>
-                <svg v-else-if="sentiment=='neutral'" class="text-gray-600 w-40 h-40 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M9 14h6v1.5H9z"/><circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8z"/></svg>
-                <svg v-else-if="sentiment=='negative'" class="text-gray-600 w-40 h-40 bg-red-400 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Zm0-2q3.325 0 5.663-2.337T20 12q0-3.325-2.337-5.663T12 4Q8.675 4 6.337 6.337T4 12q0 3.325 2.337 5.663T12 20Zm3.5-8q.625 0 1.063-.438T17 10.5q0-.375-.175-.713t-.475-.537l.225-.125q.2-.125.25-.313t-.075-.387q-.125-.2-.3-.25t-.375.075l-2.65 1.5q-.2.1-.237.288t.062.387q.125.2.313.263t.387-.063L14 10.6q.05.6.475 1t1.025.4Zm-7 0q.6 0 1.025-.4t.475-1l.05.025q.2.125.388.075t.312-.25q.1-.2.05-.388t-.25-.312l-2.625-1.5q-.2-.1-.375-.05t-.3.25q-.125.2-.075.375t.25.3l.225.125q-.3.2-.475.537T7 10.5q0 .625.438 1.063T8.5 12Zm3.5 1q-1.775 0-3.125 1.137T6.975 17h10.05q-.55-1.725-1.9-2.863T12 13Zm0-1Z"/></svg>
-                <b class="mt-4 text-2xl">{{sentiment}}</b>
+                <svg v-if="chatResult=='positive'" class="text-gray-600 w-40 h-40 bg-yellow-400 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8zm-5-6c.78 2.34 2.72 4 5 4s4.22-1.66 5-4H7z"/></svg>
+                <svg v-else-if="chatResult=='neutral'" class="text-gray-600 w-40 h-40 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M9 14h6v1.5H9z"/><circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8z"/></svg>
+                <svg v-else-if="chatResult=='negative'" class="text-gray-600 w-40 h-40 bg-red-400 rounded-full" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Zm0-2q3.325 0 5.663-2.337T20 12q0-3.325-2.337-5.663T12 4Q8.675 4 6.337 6.337T4 12q0 3.325 2.337 5.663T12 20Zm3.5-8q.625 0 1.063-.438T17 10.5q0-.375-.175-.713t-.475-.537l.225-.125q.2-.125.25-.313t-.075-.387q-.125-.2-.3-.25t-.375.075l-2.65 1.5q-.2.1-.237.288t.062.387q.125.2.313.263t.387-.063L14 10.6q.05.6.475 1t1.025.4Zm-7 0q.6 0 1.025-.4t.475-1l.05.025q.2.125.388.075t.312-.25q.1-.2.05-.388t-.25-.312l-2.625-1.5q-.2-.1-.375-.05t-.3.25q-.125.2-.075.375t.25.3l.225.125q-.3.2-.475.537T7 10.5q0 .625.438 1.063T8.5 12Zm3.5 1q-1.775 0-3.125 1.137T6.975 17h10.05q-.55-1.725-1.9-2.863T12 13Zm0-1Z"/></svg>
+                <b class="mt-4 text-2xl">{{chatResult}}</b>
             </div>
         </div>
     </div>
@@ -78,6 +86,7 @@ import { Authenticate, CreateRecording, CreateChat } from "/mjs/dtos.mjs"
 import { AudioRecorder } from "/mjs/AudioRecorder.mjs"
 import RecordButton from "/mjs/components/RecordButton.mjs"
 import PlayButton from "/mjs/components/PlayButton.mjs"
+import InputExamples from "/mjs/components/InputExamples.mjs"
 
 const Mock = {
     transcribing: false,
@@ -95,6 +104,7 @@ const App = {
     components: {
         RecordButton,
         PlayButton,
+        InputExamples,
     },
     setup() {
         const txtInput = ref('')       
@@ -110,7 +120,7 @@ const App = {
         const transcript = ref('')
         const apiChat = ref(new ApiResult())
         const apiProcessed = ref(new ApiResult())
-        const sentiment = ref('')
+        const chatResult = ref('')
         
         const feature = 'sentiment'
         const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -123,7 +133,7 @@ const App = {
             apiProcessed.value = new ApiResult()
             txtInput.value = ''
             audio.value = null
-            sentiment.value = ''
+            chatResult.value = ''
         }
         
         async function toggleRecording() {
@@ -196,7 +206,7 @@ const App = {
         
         function processChatResponse(response) {
             console.log('processChatResponse', response)
-            sentiment.value = response.sentiment
+            chatResult.value = response.sentiment
         }
 
         return {
@@ -211,7 +221,8 @@ const App = {
             transcript,
             apiChat,
             apiProcessed,
-            sentiment,
+            chatResult,
+            clear,
             onSubmit,
             toggleRecording,
         }
