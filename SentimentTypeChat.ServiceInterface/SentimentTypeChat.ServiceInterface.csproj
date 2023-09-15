@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>SentimentTypeChat.ServiceInterface</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ServiceStack" Version="6.*" />
+    <PackageReference Include="ServiceStack.Ormlite" Version="6.*" />
+    <PackageReference Include="ServiceStack.Server" Version="6.10.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SentimentTypeChat.ServiceModel\SentimentTypeChat.ServiceModel.csproj" />
+  </ItemGroup>
+
+</Project>
