@@ -2,6 +2,7 @@
 using ServiceStack;
 using ServiceStack.AI;
 using ServiceStack.OrmLite;
+using SentimentTypeChat.ServiceModel;
 
 namespace SentimentTypeChat.ServiceInterface;
 
@@ -27,26 +28,19 @@ public class GptServices : Service
 
     public async Task<StringsResponse> Any(GetPhrases request)
     {
-        IEnumerable<string> results = Array.Empty<string>();
-        if (PromptFactory.Get(request.Feature) is IPhrasesProvider phrasesProvider)
-        {
-            results = await phrasesProvider.GetPhrases();
-        }
-        return new StringsResponse { Results = results.ToList() };
+        var phraseWeights = await PromptFactory.Get(request.Feature).GetPhraseWeightsAsync();
+        return new StringsResponse { Results = phraseWeights.Map(x => x.Item1).ToList() };
     }
 
     public async Task Any(InitSpeech request)
     {
-        if (PromptFactory.Get(request.Feature) is IPhrasesProvider phrasesProvider)
-        {
-            var phrases = await phrasesProvider.GetPhrases();
-            await SpeechToText.InitAsync(new() {
-                PhraseWeights = new Dictionary<string, int>(phrases.Map(x => KeyValuePair.Create(x, 10)))
-            });
-        }
+        var phraseWeights = await PromptFactory.Get(request.Feature).GetPhraseWeightsAsync(defaultWeight:10);
+        await SpeechToText.InitAsync(new() {
+            PhraseWeights = phraseWeights.Map(x => KeyValuePair.Create(x.Item1, x.Item2))
+        });
     }
 
-    public async Task<object> Any(CreateRecording request)
+    public async Task<Recording> Any(CreateRecording request)
     {
         var feature = request.Feature.ToLower();
         var recording = (Recording)await AutoQuery.CreateAsync(request, Request);
@@ -91,7 +85,7 @@ public class GptServices : Service
         return recording;
     }
 
-    public async Task<object> Any(CreateChat request)
+    public async Task<Chat> Any(CreateChat request)
     {
         var feature = request.Feature.ToLower();
         var promptProvider = PromptFactory.Get(feature);
@@ -106,7 +100,7 @@ public class GptServices : Service
         {
             var schema = await promptProvider.CreateSchemaAsync();
             var prompt = await promptProvider.CreatePromptAsync(request.UserMessage);
-            var typeChatRequest = CreateTypeChatRequest(feature, schema, prompt, request.UserMessage);
+            var typeChatRequest = CreateTypeChatRequest(feature, schema, prompt, request.UserMessage, request.Translator);
             
             var response = await TypeChat.TranslateMessageAsync(typeChatRequest);
             var chatEnd = DateTime.UtcNow;
@@ -141,12 +135,14 @@ public class GptServices : Service
         return chat;
     }
     
-    public TypeChatRequest CreateTypeChatRequest(string feature, string schema, string prompt, string userMessage) => 
+    public TypeChatRequest CreateTypeChatRequest(string feature, string schema, string prompt, string userMessage, 
+           TypeChatTranslator? translator = null) => 
         new(schema, prompt, userMessage) {
             NodePath = Config.NodePath,
             NodeProcessTimeoutMs = Config.NodeProcessTimeoutMs,
             WorkingDirectory = Environment.CurrentDirectory,
             SchemaPath = Config.GetSiteConfig(feature).GptPath.CombineWith("schema.ts"),
+            TypeChatTranslator = translator ?? TypeChatTranslator.Json,
         };
 
     void WriteJsonFile(string path, string json)
