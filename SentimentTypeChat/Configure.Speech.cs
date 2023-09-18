@@ -1,9 +1,8 @@
-﻿using SentimentTypeChat.ServiceInterface;
-using SentimentTypeChat.ServiceModel;
-using ServiceStack.AI;
+﻿using ServiceStack.AI;
 using ServiceStack.IO;
 using ServiceStack.GoogleCloud;
 using Google.Cloud.Speech.V2;
+using SentimentTypeChat.ServiceInterface;
 
 [assembly: HostingStartup(typeof(SentimentTypeChat.ConfigureSpeech))]
 
@@ -19,8 +18,9 @@ public class ConfigureSpeech : IHostingStartup
             var speechProvider = context.Configuration.GetValue<string>("SpeechProvider");
             if (speechProvider == nameof(GoogleCloudSpeechToText))
             {
-                AppHost.AssertGoogleCloudCredentials();
+                GoogleCloudConfig.AssertValidCredentials();
                 services.AddSingleton<ISpeechToText>(c => new GoogleCloudSpeechToText(
+                    SpeechClient.Create(),
                     X.Map(c.Resolve<AppConfig>(), config =>
                     {
                         var siteConfig = config.GetSiteConfig(Tags.Sentiment);
@@ -32,7 +32,7 @@ public class ConfigureSpeech : IHostingStartup
                             RecognizerId = siteConfig.RecognizerId,
                             PhraseSetId = siteConfig.PhraseSetId,
                         };
-                    })!, SpeechClient.Create()));
+                    })!));
             }
             else if (speechProvider == nameof(WhisperApiSpeechToText))
             {
