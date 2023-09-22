@@ -1,7 +1,10 @@
-﻿using ServiceStack.AI;
+﻿using Amazon;
+using Amazon.TranscribeService;
+using ServiceStack.AI;
 using ServiceStack.IO;
 using ServiceStack.GoogleCloud;
 using Google.Cloud.Speech.V2;
+using Microsoft.CognitiveServices.Speech;
 using SentimentTypeChat.ServiceInterface;
 
 [assembly: HostingStartup(typeof(SentimentTypeChat.ConfigureSpeech))]
@@ -19,20 +22,41 @@ public class ConfigureSpeech : IHostingStartup
             if (speechProvider == nameof(GoogleCloudSpeechToText))
             {
                 GoogleCloudConfig.AssertValidCredentials();
-                services.AddSingleton<ISpeechToText>(c => new GoogleCloudSpeechToText(
-                    SpeechClient.Create(),
-                    X.Map(c.Resolve<AppConfig>(), config =>
-                    {
-                        var siteConfig = config.GetSiteConfig(Tags.Sentiment);
-                        return new GoogleCloudSpeechConfig
-                        {
-                            Project = config.Project,
-                            Location = config.Location,
-                            Bucket = siteConfig.Bucket,
-                            RecognizerId = siteConfig.RecognizerId,
-                            PhraseSetId = siteConfig.PhraseSetId,
-                        };
-                    })!));
+                services.AddSingleton<ISpeechToText>(c => {
+                    var config = c.Resolve<AppConfig>();
+                    var google = config.AssertGcpConfig();
+                    return new GoogleCloudSpeechToText(SpeechClient.Create(),
+                        new GoogleCloudSpeechConfig {
+                            Project = google.Project,
+                            Location = google.Location,
+                            Bucket = google.Bucket,
+                            RecognizerId = config.Sentiment.RecognizerId,
+                            PhraseSetId = config.Sentiment.PhraseSetId,
+                        }
+                    );
+                });
+            }
+            else if (speechProvider == nameof(AwsSpeechToText))
+            {
+                services.AddSingleton<ISpeechToText>(c => {
+                    var config = c.Resolve<AppConfig>();
+                    var a = config.AssertAwsConfig();
+                    return new AwsSpeechToText(new AmazonTranscribeServiceClient(
+                            a.AccessKey, a.SecretKey, RegionEndpoint.GetBySystemName(a.Region)),
+                        new AwsSpeechToTextConfig {
+                            Bucket = a.Bucket,
+                            VocabularyName = config.Sentiment.VocabularyName,
+                        });
+                });
+            }
+            else if (speechProvider == nameof(AzureSpeechToText))
+            {
+                services.AddSingleton<ISpeechToText>(c => {
+                    var az = c.Resolve<AppConfig>().AssertAzureConfig();
+                    var config = SpeechConfig.FromSubscription(az.SpeechKey, az.SpeechRegion);
+                    config.SpeechRecognitionLanguage = "en-US";
+                    return new AzureSpeechToText(config);
+                });
             }
             else if (speechProvider == nameof(WhisperApiSpeechToText))
             {
@@ -47,7 +71,7 @@ public class ConfigureSpeech : IHostingStartup
             }
             else throw new NotSupportedException($"Unknown SpeechProvider '{speechProvider}'");
         })
-        .ConfigureAppHost(appHost => {
+        .ConfigureAppHost(afterConfigure:appHost => {
             if (AppTasks.IsRunAsAppTask()) return;
 
             if (appHost.Resolve<ISpeechToText>() is IRequireVirtualFiles requireVirtualFiles)

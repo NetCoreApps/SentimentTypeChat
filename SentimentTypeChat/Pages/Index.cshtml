@@ -4,9 +4,23 @@
     ViewData["Title"] = "Home page";
 }
 
+<div class="absolute top-16 right-4">
+    <a href="/sentiment/schema" class="text-indigo-600">schema.ts</a>
+    <a href="/sentiment/prompt?userMessage=TypeChat+is+awesome!" class="ml-4 text-indigo-600">prompt</a>
+    <a href="https://github.com/NetCoreApps/SentimentTypeChat" class="ml-4 text-indigo-600">github</a>
+</div>
+
 <div class="container mx-auto px-5">
     <section class="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
-        <h1 class="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">Sentiment TypeChat</h1>
+        <div class="flex">
+            <a href="/sentiment">
+                <svg class="w-28 h-28 mr-6" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <path fill="currentColor" d="M18.303 10a2.662 2.662 0 0 0-1.908.806l-.393.405l-.397-.405a2.662 2.662 0 0 0-3.816 0a2.8 2.8 0 0 0 0 3.896L16.002 19l4.209-4.298a2.8 2.8 0 0 0 0-3.896A2.662 2.662 0 0 0 18.303 10Z"/>
+                    <path fill="currentColor" d="M17.736 30L16 29l4-7h6a1.997 1.997 0 0 0 2-2V8a1.997 1.997 0 0 0-2-2H6a1.997 1.997 0 0 0-2 2v12a1.997 1.997 0 0 0 2 2h9v2H6a4 4 0 0 1-4-4V8a3.999 3.999 0 0 1 4-4h20a3.999 3.999 0 0 1 4 4v12a4 4 0 0 1-4 4h-4.835Z"/>
+                </svg>
+            </a>
+            <h1 class="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">Sentiment TypeChat</h1>
+        </div>
     </section>
 </div>
 
@@ -15,7 +29,7 @@
         <div class="mx-auto max-w-screen-sm flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end">
             <div class="mb-8 lg:mb-0 w-full lg:w-auto">
                 <form v-if="!(loadingRecording || isRecording || isTranscribing || transcript)" v-on:submit.prevent="onSubmit">
-                    <text-input v-model="txtInput" :disabled="isSendingChat" class="w-full lg:w-96 text-2xl" placeholder="What can we get for you today?"></text-input>
+                    <text-input v-model="txtInput" :disabled="isSendingChat" class="w-full lg:w-96 text-2xl" placeholder="What is happening?"></text-input>
                     <input-examples :loading="isSendingChat" v-model="txtInput" v-on:change="onSubmit" class="mt-2">
                         <pre>
                         hello, world
@@ -34,10 +48,6 @@
                         <div>
                             {{apiProcessed.response}}
                         </div>
-                        <svg v-on:click="clear" class="w-10 h-10 cursor-pointer hover:text-green-800 shrink-0" xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
-                            <title>clear</title>
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m7.5 7.5l6 6m0-6l-6 6"/>
-                        </svg>
                     </div>
                     <div v-else-if="apiProcessed.error" class="text-red-600 flex">
                         <div>
@@ -45,10 +55,6 @@
                                 {{apiProcessed.error.message}}
                             </div>
                         </div>
-                        <svg v-on:click="clear" class="w-10 h-10 cursor-pointer hover:text-green-800 shrink-0" xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
-                            <title>clear</title>
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m7.5 7.5l6 6m0-6l-6 6"/>
-                        </svg>
                     </div>
                     <div v-else-if="transcript" class="lowercase">
                         <div class="pb-4">{{ transcript }}</div>
@@ -60,6 +66,9 @@
             </div>
             <div class="lg:ml-8">
                 <record-button :loading="loadingRecording" :recording="isRecording" v-on:toggle="toggleRecording"></record-button>
+                <div class="relative mr-3">
+                    <close-button title="clear" v-if="apiProcessed.response || apiProcessed.error || transcript" v-on:click="clear"></close-button>
+                </div>
             </div>
             <div :class="['ml-4', audio ? '' : 'invisible']">
                 <play-button :playing="isPlaying" v-on:play="audio.play()" v-on:pause="audio.pause()"></play-button>
@@ -89,9 +98,9 @@ import PlayButton from "/mjs/components/PlayButton.mjs"
 import InputExamples from "/mjs/components/InputExamples.mjs"
 
 const Mock = {
-    transcribing: false,
-    sendingChat: false,
-    wait: 2000,
+    transcribing: 0,
+    sendingChat: 0,
+    wait: 200,
     recording: {
         "transcript": "TypeChat is awesome!",
     },
@@ -172,7 +181,7 @@ const App = {
                     console.timeEnd('transcribe')
                 }
                 isTranscribing.value = false
-                await processOrder(transcript.value)
+                await processRequest(transcript.value)
             }
         }        
 
@@ -180,11 +189,11 @@ const App = {
             const request = txtInput.value
             clear()
             txtInput.value = request
-            await processOrder(request)
+            await processRequest(request)
             txtInput.value = ''
         }
         
-        async function processOrder(request) {
+        async function processRequest(request) {
             if (!request || !request.trim()) return
             
             isSendingChat.value = true
@@ -196,6 +205,7 @@ const App = {
                 apiChat.value = await client.api(new CreateChat({ feature, userMessage: request.toLowerCase() }))
                 console.timeEnd('gpt')
             }
+            transcript.value = request
             isSendingChat.value = false
             if (apiChat.value.response) {
                 processChatResponse(JSON.parse(apiChat.value.response.chatResponse))
