@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="gpt\sentiment\" />
+    <Folder Include="App_Data\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,7 +57,7 @@
     <None Update="gpt\sentiment\schema.ss">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="gpt\sentiment\schema.ts">
+    <None Update="postinstall.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
